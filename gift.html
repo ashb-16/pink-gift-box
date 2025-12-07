@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Soft-Girl Birthday Surprise</title>
+  <style>
+    :root{
+      --bg:#fff6fb;
+      --card:#fff;
+      --accent:#ff8fb3;
+      --accent-2:#ffd1e8;
+      --text:#4a2a3a;
+      --shadow: rgba(74,42,58,0.08);
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0; height:100vh; display:flex; align-items:center; justify-content:center;
+      background: linear-gradient(180deg,var(--bg), #fff0f6);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+      color:var(--text);
+    }
+    .stage{
+      width:680px; max-width:95vw; height:460px; background:linear-gradient(180deg, rgba(255,255,255,0.6), rgba(255,249,253,0.8));
+      border-radius:18px; box-shadow: 0 12px 30px var(--shadow); display:flex; align-items:center; justify-content:center; position:relative; overflow:hidden;
+      padding:28px;
+    }
+    .gift-wrap{ position:relative; width:220px; height:180px; cursor:pointer; display:flex; align-items:flex-end; justify-content:center; }
+    .box{
+      width:180px; height:120px; background:linear-gradient(180deg,#ffd1e8,#ffc0dc); border-radius:10px; position:relative; box-shadow:0 8px 18px rgba(0,0,0,0.12);
+      display:flex; align-items:center; justify-content:center; transform-origin:center bottom; transition:transform 400ms cubic-bezier(.2,.9,.3,1), opacity 500ms ease;
+    }
+    .ribbon-vertical{ position:absolute; width:26px; height:140px; background:linear-gradient(180deg,#ff8fb3,#ff79a8); left:50%; transform:translateX(-50%); border-radius:6px; z-index:3; box-shadow: inset 0 -4px 8px rgba(0,0,0,0.06); }
+    .ribbon-horizontal{ position:absolute; height:26px; width:200px; background:linear-gradient(90deg,#ff8fb3,#ff79a8); top:50%; transform:translateY(-50%); border-radius:6px; z-index:3; box-shadow: inset -4px 0 8px rgba(0,0,0,0.06); }
+    .lid{ width:200px; height:46px; background:linear-gradient(180deg,#fff2fb,#ffe6f6); border-radius:10px; position:absolute; top:-18px; left:50%; transform:translateX(-50%); transform-origin: center bottom; z-index:5; box-shadow: 0 12px 18px rgba(0,0,0,0.10); transition: transform 700ms cubic-bezier(.2,.9,.3,1), opacity 400ms ease; }
+    .bow{ position:absolute; top:-6px; left:50%; transform:translateX(-50%); z-index:6; display:flex; gap:6px; align-items:center; justify-content:center; }
+    .loop{ width:42px; height:22px; background:linear-gradient(90deg,#ff90c1,#ff6d9f); border-radius:22px; transform-origin:center; box-shadow: inset 0 -4px 8px rgba(0,0,0,0.06); }
+    .knot{ width:20px; height:20px; background:#ff4f88; border-radius:50%; box-shadow: inset 0 -3px 6px rgba(0,0,0,0.07); }
+    .gift-wrap:hover .box{ transform: translateY(-8px) }
+    .open .lid{ transform: rotateX(-110deg) translateY(-10px); }
+    .open .box{ transform: translateY(20px) }
+    .popup{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; pointer-events:none; }
+    .card{ width:480px; max-width:90%; min-height:220px; background:linear-gradient(180deg,#fff,#fff6fb); border-radius:18px; box-shadow:0 18px 40px rgba(74,42,58,0.08); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px; padding:28px; transform:scale(.9); opacity:0; transition: all 500ms cubic-bezier(.2,.9,.3,1); pointer-events:auto; }
+    .card.show{ transform:scale(1); opacity:1 }
+    .card h1{ margin:0; font-size:40px; letter-spacing:1px; color:var(--accent); text-shadow: 0 4px 18px rgba(255,143,179,0.12); }
+    .card p{ margin:0; color: #7b4b60 }
+    canvas{ position:absolute; inset:0; pointer-events:none }
+    .hearts{ position:absolute; bottom:18px; left:22px; display:flex; gap:8px }
+    .heart{ width:12px; height:12px; background:var(--accent); transform: rotate(-45deg); border-radius:2px; position:relative; }
+    .heart:before, .heart:after{ content:''; position:absolute; width:12px; height:12px; background:var(--accent); border-radius:50%; }
+    .heart:before{ top:-6px; left:0 }
+    .heart:after{ left:6px; top:0 }
+    .hint{ position:absolute; bottom:18px; right:22px; color:#8b5b6a; font-size:13px }
+    @keyframes floaty { 0%{ transform: translateY(0) } 50%{ transform: translateY(-12px) } 100%{ transform: translateY(0) } }
+    .card h1{ animation: floaty 2.6s infinite }
+  </style>
+</head>
+<body>
+  <div class="stage">
+    <canvas id="confetti"></canvas>
+
+    <div class="gift-wrap" id="gift" title="Click to open">
+      <div class="lid" id="lid"></div>
+      <div class="bow">
+        <div class="loop"></div>
+        <div class="knot"></div>
+        <div class="loop"></div>
+      </div>
+      <div class="box"></div>
+      <div class="ribbon-vertical"></div>
+      <div class="ribbon-horizontal"></div>
+    </div>
+
+    <div class="popup" id="popup">
+      <div class="card" id="card">
+        <h1>Happy Birthday! 🎀</h1>
+        <p>Wishing you a day as sweet and soft as you are.</p>
+      </div>
+    </div>
+
+    <div class="hearts" aria-hidden>
+      <div class="heart" style="background:#ff9dcf"></div>
+      <div class="heart" style="background:#ff7aa8"></div>
+      <div class="heart" style="background:#ffd1e8"></div>
+    </div>
+    <div class="hint">Tap the present ✨</div>
+  </div>
+
+  <script>
+    const canvas = document.getElementById('confetti');
+    const ctx = canvas.getContext('2d');
+    let W,H,particles=[];
+    const palette=['#ffd1e8','#ff9dcf','#ffb7d5','#ffe6f6','#ff79a8','#fff3d9'];
+
+    function resize(){ W=canvas.width=window.innerWidth; H=canvas.height=window.innerHeight; }
+    window.addEventListener('resize',resize); resize();
+
+    function rand(min,max){ return Math.random()*(max-min)+min; }
+
+    function createBurst(x,y,count=80){
+      for(let i=0;i<count;i++){
+        particles.push({ x:x+rand(-10,10), y:y+rand(-10,10), vx:rand(-6,6), vy:rand(-12,-2), size:rand(6,12), rot:rand(0,360), vr:rand(-8,8), color:palette[Math.floor(Math.random()*palette.length)], life:rand(60,120) });
+      }
+    }
+
+    function update(){
+      ctx.clearRect(0,0,W,H);
+      for(let i=particles.length-1;i>=0;i--){
+        const p=particles[i]; p.vy+=0.35; p.x+=p.vx; p.y+=p.vy; p.rot+=p.vr; p.life--;
+        ctx.save(); ctx.translate(p.x,p.y); ctx.rotate(p.rot*Math.PI/180);
+        ctx.fillStyle=p.color; ctx.fillRect(-p.size/2,-p.size/2,p.size,p.size*0.6);
+        ctx.restore();
+        if(p.y>H+50||p.life<=0) particles.splice(i,1);
+      }
+      requestAnimationFrame(update);
+    }
+    update();
+
+    const gift=document.getElementById('gift');
+    const lid=document.getElementById('lid');
+    const popup=document.getElementById('popup');
+    const card=document.getElementById('card');
+
+    let opened=false;
+    function openGift(){
+      if(opened) return; opened=true;
+      gift.classList.add('open');
+
+      const boxEl=document.querySelector('.box');
+      const rect=boxEl.getBoundingClientRect();
+      // Calculate the center of the box relative to the canvas container
+      const stageRect=document.querySelector('.stage').getBoundingClientRect();
+      const x=rect.left - stageRect.left + rect.width/2;
+      const y=rect.top - stageRect.top + rect.height/2;
+
+      // Confetti bursts from exact box center and gift disappears simultaneously
+      createBurst(x,y,200);
+      gift.style.transition='opacity 500ms ease, transform 500ms ease';
+      gift.style.opacity='0';
+      gift.style.transform='scale(.85) translateY(-20px)';
+
+      setTimeout(()=> createBurst(x,y-30,150),200);
+      setTimeout(()=> createBurst(x,y-60,120),400);
+      setTimeout(()=>{ popup.style.pointerEvents='auto'; card.classList.add('show'); },1500);
+    }
+
+    gift.addEventListener('click',openGift);
+    lid.addEventListener('click',openGift);
+
+    gift.setAttribute('tabindex','0');
+    gift.addEventListener('keydown',(e)=>{ if(e.key==='Enter'||e.key===' ') openGift(); });
+
+    card.addEventListener('click',()=>{
+      particles=[];
+      gift.style.opacity='1'; gift.style.transform='none'; gift.classList.remove('open'); card.classList.remove('show'); popup.style.pointerEvents='none'; opened=false;
+    });
+    popup.addEventListener('click',()=>{
+      particles=[];
+      gift.style.opacity='1'; gift.style.transform='none'; gift.classList.remove('open'); card.classList.remove('show'); popup.style.pointerEvents='none'; opened=false;
+    });
+  </script>
+</body>
+</html>
